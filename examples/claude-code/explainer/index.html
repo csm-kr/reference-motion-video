@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!--
+  Sample 2 · concept explainer, 30 s, palette soft_pulse (96 BPM: beat 0.625 s, bar 2.5 s; the drop on bar 2).
+  "What does a coding agent actually do? It works in a loop: read, plan, act, check. It stops when it should."
+  Each loop step lights a node on a bar and raises the energy by one layer; the stop is the real project hook that blocked
+  an rm -rf in this session; the re-entry sends the hero dot round the loop on every beat. Unofficial, no logo.
+-->
+<script>window.BPM = 96;</script>
+<script src="../../../engine/node_modules/gsap/dist/gsap.min.js"></script>
+<link rel="stylesheet" href="../stage.css">
+<style>
+  :root { --accent: #0FA38A; }
+  .pd { display: inline-block; width: .17em; height: .17em; margin-left: .04em; }
+  #veil { position: absolute; inset: 0; background: rgba(18,19,24,.78); visibility: hidden; z-index: 5; }
+  .ring { position: absolute; left: 300px; top: 350px; width: 520px; height: 520px; border-radius: 50%; border: 4px dashed #D8D2C4; box-sizing: border-box; visibility: hidden; }
+  .stopcap { position: absolute; left: 0; width: 1920px; text-align: center; z-index: 6; color: #F4F1EA; }
+</style>
+</head>
+<body>
+<div id="stage"><div id="dot"></div></div>
+<script src="../stage.js"></script>
+<script>
+const T = {
+  intro: 0, breath: beat(7), drop: bar(2), read: bar(2), plan: bar(3), act: bar(4), check: bar(5),
+  stop: bar(6), fill: bar(7) + beat(2), reentry: bar(8), final: bar(10), end: bar(11), total: bar(12),
+};
+const C = { x: 560, y: 610, r: 260 };
+const NODES = [['Read', 0, -1], ['Plan', 1, 0], ['Act', 0, 1], ['Check', -1, 0]];
+// the dot marks the active step inside the node's left edge (at the centre it covered the label)
+const nodeDot = (n) => () => { const r = n.getBoundingClientRect(); return { x: r.left + 36, y: r.top + r.height / 2 }; };
+function build() {
+  // ------------------------------------------------------------ the question
+  const s1 = scene(T.intro, T.drop);
+  const q = el('div', 'big', s1); q.style.top = '340px'; q.style.fontSize = '118px';
+  const l1 = el('div', '', q), l2 = el('div', '', q);
+  const wq = [...words(l1, 'What does a coding agent'), ...words(l2, 'actually do?', 'accent')];
+  popWords(wq, beat(0.5), beat(0.5), 'word');
+
+  // ------------------------------------------------------------ the loop
+  const s2 = scene(T.drop, T.final);
+  const head = el('div', 'cap', s2); head.style.top = '90px'; head.style.fontSize = '64px';
+  const hA = el('div', '', head); popWords(words(hA, 'It works in a loop.'), T.drop + beat(0.5), beat(0.5), 'pop'); tl.set(hA, { display: 'none' }, T.stop);
+  cue(T.drop, 'drop');
+  const ring = el('div', 'ring', s2); show(ring, T.drop);
+  const nodeEl = NODES.map(([name, dx, dy], i) => {
+    const n = el('div', 'node', s2, name); Object.assign(n.style, { left: `${C.x + dx * C.r - 150}px`, top: `${C.y + dy * C.r - 56}px` });
+    show(n, T.drop); tl.set(n, { className: 'node on' }, [T.read, T.plan, T.act, T.check][i]); return n;
+  });
+  const STEP = [
+    [T.read, ['<span class="dim">$</span> grep -n "def \\|^class " engine/audio.py', '22:def load(path):', '89:class Sampler:']],
+    [T.plan, ['<span class="dim">plan:</span> write the failing test first', 'tests/test_beatmap.py', '5 checks: tempo, beats, downbeats, sections']],
+    [T.act, ['<span class="tool">Edit engine/beatmap.py</span>', '<span class="add">+ def _attack(y, sr, t, win=0.025):</span>', '<span class="add">+     """Where the energy crosses 20%..."""</span>']],
+    [T.check, ['<span class="dim">$</span> pytest -q tests/test_beatmap.py', '<span class="pass">5 passed in 1.19s</span>']],
+  ];
+  STEP.forEach(([t0, lines], i) => {
+    cue(t0, 'node', { i }); dotAt(t0, nodeDot(nodeEl[i]), 13);
+    const sn = el('div', 'snip', s2); Object.assign(sn.style, { left: '1020px', top: '470px', width: '820px' });
+    lines.forEach((h, j) => { const l = el('div', 'ln', sn, h); l.style.visibility = 'hidden'; show(l, t0 + beat(1 + j), i < 3 ? t0 + bar(1) : T.stop); if (j) cue(t0 + beat(1 + j), 'pop', { i: j }); });
+    show(sn, t0 + beat(1), i < 3 ? t0 + bar(1) : T.stop); cue(t0 + beat(1), 'chip', { i });
+  });
+
+  // ------------------------------------------------------------ the stop: it does not delete on its own
+  const veil = el('div', '', s2); veil.id = 'veil'; show(veil, T.stop, T.reentry);
+  cue(T.stop, 'break');
+  const sc = el('div', 'stopcap', s2); sc.style.top = '170px'; sc.style.fontSize = '96px'; sc.style.fontWeight = '800'; sc.style.letterSpacing = '-0.03em';
+  const ws = words(sc, 'It stops when it should.'); ws.forEach((w, i) => pop(w, T.stop + beat(0.5 + 0.5 * i), 1.05)); cue(T.stop + beat(0.5), 'word');
+  tl.set(sc, { display: 'none' }, T.reentry);
+  const sn = el('div', 'snip', s2); Object.assign(sn.style, { left: '290px', top: '520px', width: '1340px', background: '#1E2129', zIndex: 6 });
+  ['<span class="dim">$</span> rm -rf ~/.gradle/wrapper/dists/gradle-9.1.0-all', '<span class="fail">Blocked by project hook: recursive force delete.</span>', '<span class="dim">Ask the user to run it if it is really needed.</span>']
+    .forEach((h, j) => { const l = el('div', 'ln', sn, h); l.style.visibility = 'hidden'; show(l, T.stop + beat(4 + 2 * Math.min(j, 1)), T.reentry); });
+  show(sn, T.stop + beat(4), T.reentry); cue(T.stop + beat(4), 'chip'); cue(T.stop + beat(6), 'num');
+  dotHide(T.stop);
+
+  // ------------------------------------------------------------ you decide; it goes round again, one node per beat
+  cue(T.reentry, 'reentry');
+  const hB = el('div', '', head); hB.style.display = 'none'; tl.set(hB, { display: 'block' }, T.reentry);
+  popWords(words(hB, 'You decide. It continues.', ''), T.reentry + beat(0.5), beat(0.5), 'pop');
+  for (let k = 0; k < 8; k++) dotAt(T.reentry + beat(k), nodeDot(nodeEl[k % 4]), 13);
+  dotHide(T.final - beat(0.5));
+
+  // ------------------------------------------------------------ the name; the dot lands as the last period
+  const s3 = scene(T.final, T.end);
+  cue(T.final, 'final');
+  const h3 = el('div', 'big', s3); h3.style.top = '360px'; h3.style.fontSize = '150px';
+  pop(el('span', 'w', h3, 'Claude Code'), T.final, 1.04);
+  const t3 = el('div', 'cap', s3); t3.style.top = '560px'; t3.style.fontSize = '54px'; t3.style.color = 'var(--muted)';
+  const tag = el('span', 'w', t3, 'Read. Plan. Act. Check'); const p3 = el('span', 'pd', tag); p3.id = 'p3'; pop(tag, T.final, 1.03);
+  dotAt(T.final, fixedPoint('#p3'), 7); dotHide(T.end);
+
+  const s4 = scene(T.end, null, 'dark');
+  const n4 = el('div', 'note', s4, 'Unofficial sample, made with the reference-motion-video skill.<br>Claude Code is made by Anthropic. This film is not affiliated with or endorsed by Anthropic.');
+  n4.style.top = '470px';
+
+  section(T.intro, T.breath, 'intro'); section(T.breath, T.drop, 'breath');
+  section(T.read, T.plan, 'groove', { e: 0.5 }); section(T.plan, T.act, 'groove', { e: 0.65 });
+  section(T.act, T.check, 'groove', { e: 0.8 }); section(T.check, T.stop, 'groove', { e: 0.95 });
+  section(T.stop, T.fill, 'stop'); section(T.fill, T.reentry, 'build'); section(T.reentry, T.final, 'groove', { e: 1.0 });
+  section(T.end, T.total, 'end');
+  finish(T, T.total);
+}
+document.fonts.load('800 150px Inter').then(() => document.fonts.load('500 30px "JetBrains Mono"')).then(() => document.fonts.ready).then(build);
+</script>
+</body>
+</html>

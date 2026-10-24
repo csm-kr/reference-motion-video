@@ -1,0 +1,13 @@
+node_modules/
+out/
+*.mp4
+*.wav
+.venv/
+samples/
+.decoded*/
+__pycache__/
+.pytest_cache/
+*.py[cod]
+.DS_Store
+.env
+.env.*

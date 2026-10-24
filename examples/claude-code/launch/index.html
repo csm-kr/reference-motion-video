@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!--
+  Sample 1 · feature launch film, 18 s, palette drums_launch (100 BPM: beat 0.6 s, bar 2.4 s; the drop on bar 3).
+  "You describe it. It writes the test first. Then it proves it." Every terminal line is real output from the session that
+  built this skill's beatmap tool (pytest runs, grep of engine/audio.py, the project hook that blocked rm -rf).
+  Unofficial: no logo; the end card says it is not affiliated with Anthropic.
+  Cuts land on the beat, words pop on the off-beat; the hero dot is the period of "it." and the prompt marker.
+-->
+<script>window.BPM = 100;</script>
+<script src="../../../engine/node_modules/gsap/dist/gsap.min.js"></script>
+<link rel="stylesheet" href="../stage.css">
+<style>:root { --accent: #4C6FFF; } .pd { display: inline-block; width: .17em; height: .17em; margin-left: .04em; }</style>
+</head>
+<body>
+<div id="stage"><div id="dot"></div></div>
+<script src="../stage.js"></script>
+<script>
+const T = {
+  intro: 0, term: bar(1), build: bar(2), riser: bar(2) + beat(1), breath: bar(2) + beat(3), drop: bar(3),
+  reads: bar(4), asks: bar(5), final: bar(6), end: bar(6) + beat(2), total: bar(7.5),
+};
+function build() {
+  // ------------------------------------------------------------ intro: the ask, before anything happens
+  const s1 = scene(T.intro, T.term);
+  const h1 = el('div', 'big', s1); h1.style.top = '400px'; h1.style.fontSize = '150px';
+  const w1 = words(h1, 'You describe it');
+  const p1 = el('span', 'pd', w1[2]); p1.id = 'p1';
+  popWords(w1, beat(0.5), beat(1), 'word');
+  dotAt(beat(2.5), fixedPoint('#p1'), 14); cue(beat(2.5), 'dot');
+
+  // ------------------------------------------------------------ the terminal: the prompt is typed, the test comes first
+  const s2 = scene(T.term, T.reads, 'dark');
+  const cap = el('div', 'cap', s2); cap.style.top = '70px'; cap.style.fontSize = '58px';
+  const capA = el('div', '', cap); const wa = words(capA, 'It writes the test first.');
+  popWords(wa, T.build + beat(0.5), beat(0.5), 'pop'); tl.set(capA, { display: 'none' }, T.drop);
+  const capB = el('div', '', cap); capB.style.display = 'none'; tl.set(capB, { display: 'block' }, T.drop);
+  const wb = words(capB, 'Then it proves it.', 'accent'); popWords(wb, T.drop + beat(0.5), beat(0.5), 'pop');
+  const term = terminal(s2, 320, 190, 1280, 720);
+  const pr = term.line('<span class="prompt" id="pm"></span><span id="typed"></span><span class="caret"></span>', T.term);
+  cue(T.term, 'cut', { big: 1 });
+  dotAt(T.term, fixedPoint('#pm'), 10); dotHide(T.term + beat(0.5));
+  typeText($('#typed'), 'make a beat map tool. write the test first.', T.term + beat(0.5), 24);
+  term.line('', T.build);
+  term.line('<span class="tool">Write tests/test_beatmap.py</span>', T.build, '', 'chip');
+  term.line('<span class="tool">Run pytest -q tests/test_beatmap.py</span>', T.build + beat(1), '', 'chip');
+  term.line('<span class="fail">  3 failed, 2 passed</span>', T.build + beat(2), '', 'count');
+  term.line('<span class="tool">Edit engine/beatmap.py</span>', T.build + beat(2.5), '', 'chip');
+  term.line('<span class="pass">  5 passed in 1.19s</span>', T.drop, '', 'drop');
+  tl.fromTo(term.card, { scale: 1.035 }, { scale: 1, duration: 0.1, ease: 'power2.out', immediateRender: false }, T.drop);
+
+  // ------------------------------------------------------------ it reads the repo
+  const s3 = scene(T.reads, T.asks);
+  cue(T.reads, 'cut');
+  const h3 = el('div', 'big', s3); h3.style.top = '170px'; h3.style.fontSize = '120px';
+  popWords(words(h3, 'Reads your repo.'), T.reads + beat(0.5), beat(0.5), 'word');
+  const sn3 = el('div', 'snip', s3); Object.assign(sn3.style, { left: '510px', top: '420px', width: '900px' });
+  ['<span class="dim">$</span> grep -n "def \\|^class " engine/audio.py', '22:def load(path):', '38:def mtof(m):', '89:class Sampler:', '162:class Mix:']
+    .forEach((h, i) => { const l = el('div', 'ln', sn3, h); l.style.visibility = 'hidden'; show(l, T.reads + beat(2 + 0.5 * i)); if (i) cue(T.reads + beat(2 + 0.5 * i), 'pop', { i }); });
+  show(sn3, T.reads + beat(2)); cue(T.reads + beat(2), 'chip');
+
+  // ------------------------------------------------------------ it asks before it deletes
+  const s4 = scene(T.asks, T.final, 'dark');
+  cue(T.asks, 'cut', { big: 1 });
+  const h4 = el('div', 'big', s4); h4.style.top = '170px'; h4.style.fontSize = '120px';
+  popWords(words(h4, 'Asks before it deletes.'), T.asks + beat(0.5), beat(0.5), 'word');
+  const sn4 = el('div', 'snip', s4); Object.assign(sn4.style, { left: '250px', top: '440px', width: '1420px', background: '#1E2129' });
+  const l1 = el('div', 'ln', sn4, '<span class="dim">$</span> rm -rf ~/Library/pnpm/store'); l1.style.visibility = 'hidden';
+  const l2 = el('div', 'ln', sn4, '<span class="fail">Blocked by project hook: recursive force delete.</span>'); l2.style.visibility = 'hidden';
+  const l3 = el('div', 'ln', sn4, '<span class="dim">Ask the user to run it if it is really needed.</span>'); l3.style.visibility = 'hidden';
+  show(sn4, T.asks + beat(2)); show(l1, T.asks + beat(2)); cue(T.asks + beat(2), 'chip');
+  show(l2, T.asks + beat(3)); show(l3, T.asks + beat(3)); cue(T.asks + beat(3), 'num');
+
+  // ------------------------------------------------------------ the name, the line, the dot lands as the last period
+  const s5 = scene(T.final, T.end);
+  cue(T.final, 'final');
+  const h5 = el('div', 'big', s5); h5.style.top = '360px'; h5.style.fontSize = '150px';
+  pop(el('span', 'w', h5, 'Claude Code'), T.final, 1.04);
+  const t5 = el('div', 'cap', s5); t5.style.top = '560px'; t5.style.fontSize = '54px'; t5.style.color = 'var(--muted)';
+  // three phrases, three hits (single words popping 0.15 s apart were masked by the final hit's crash: synccheck)
+  const ph = ['Describe it.', 'Build it.', 'Prove it'].map((x) => { const s = el('span', 'w', t5, x); t5.appendChild(document.createTextNode(' ')); return s; });
+  const p5 = el('span', 'pd', ph[2]); p5.id = 'p5';
+  ph.forEach((s, i) => { pop(s, T.final + beat(0.5 + 0.5 * i), 1.05); cue(T.final + beat(0.5 + 0.5 * i), 'word', { i }); });
+  dotAt(T.final + beat(1.5), fixedPoint('#p5'), 7); dotHide(T.end);
+
+  // ------------------------------------------------------------ end card: silent
+  const s6 = scene(T.end, null, 'dark');
+  const n6 = el('div', 'note', s6, 'Unofficial sample, made with the reference-motion-video skill.<br>Claude Code is made by Anthropic. This film is not affiliated with or endorsed by Anthropic.');
+  n6.style.top = '470px';
+
+  section(T.intro, T.term, 'intro'); section(T.term, T.build, 'tease'); section(T.build, T.breath, 'build');
+  section(T.riser, T.breath, 'riser'); section(T.breath, T.drop, 'breath'); section(T.drop, T.asks, 'groove', { e: 1.0 });
+  section(T.asks, T.final, 'groove', { e: 1.1 }); section(T.end, T.total, 'end');
+  finish(T, T.total);
+}
+document.fonts.load('800 150px Inter').then(() => document.fonts.load('500 30px "JetBrains Mono"')).then(() => document.fonts.ready).then(build);
+</script>
+</body>
+</html>

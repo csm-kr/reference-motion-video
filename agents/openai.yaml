@@ -1,0 +1,4 @@
+interface:
+  display_name: "Reference Motion Video"
+  short_description: "Reference-led product films with cues and composed music"
+  default_prompt: "Use $reference-motion-video to plan and build a product film from real screens and references."

@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!--
+  Sample 3 · product demo walkthrough, 22.8 s, palette bright_demo (100 BPM: beat 0.6 s, bar 2.4 s; the drop on bar 5).
+  One real task from the session that built this skill: "add a sync check, write the test first". The first run fails
+  (a hit 60 ms late slipped through), one detector line changes, the run goes green, and the numbers it was built for show:
+  random times that still pass 75% -> 33%, picture cues heard 47 / 47. Unofficial, no logo.
+-->
+<script>window.BPM = 100;</script>
+<script src="../../../engine/node_modules/gsap/dist/gsap.min.js"></script>
+<link rel="stylesheet" href="../stage.css">
+<style>
+  :root { --accent: #7C5CFF; }
+  .pd { display: inline-block; width: .17em; height: .17em; margin-left: .04em; }
+  .num { position: absolute; left: 0; width: 1920px; text-align: center; font: 800 260px/1 Inter, sans-serif; letter-spacing: -0.05em; }
+</style>
+</head>
+<body>
+<div id="stage"><div id="dot"></div></div>
+<script src="../stage.js"></script>
+<script>
+const T = {
+  intro: 0, term: bar(1), tests: bar(2), run: bar(3), fix: bar(4), riser: bar(4) + beat(1), breath: bar(4) + beat(3), drop: bar(5),
+  stat1: bar(6), stat2: bar(7), final: bar(8), end: bar(8) + beat(2), total: bar(9.5),
+};
+function build() {
+  // ------------------------------------------------------------ the ask
+  const s1 = scene(T.intro, T.term);
+  const h1 = el('div', 'big', s1); h1.style.top = '400px'; h1.style.fontSize = '150px';
+  const w1 = words(h1, 'Proof, not promises');
+  const p1 = el('span', 'pd', w1[2]); p1.id = 'p1';
+  popWords(w1, beat(0.5), beat(1), 'word');
+  dotAt(beat(2.5), fixedPoint('#p1'), 14); cue(beat(2.5), 'dot');
+
+  // ------------------------------------------------------------ the terminal: test first, it fails, one line changes, green
+  const s2 = scene(T.term, T.stat1, 'dark');
+  cue(T.term, 'cut', { big: 1 });
+  const cap = el('div', 'cap', s2); cap.style.top = '64px'; cap.style.fontSize = '54px';
+  const cA = el('div', '', cap); popWords(words(cA, 'A hit 60 ms late slipped through.'), T.run + beat(2), beat(0.25), 'pop'); tl.set(cA, { display: 'none' }, T.drop);
+  const cB = el('div', '', cap); cB.style.display = 'none'; tl.set(cB, { display: 'block' }, T.drop);
+  pop(el('span', 'w accent', cB, 'Green.'), T.drop + beat(0.5), 1.08); cue(T.drop + beat(0.5), 'word');
+  const term = terminal(s2, 300, 170, 1320, 780);
+  term.line('<span class="prompt" id="pm"></span><span id="typed"></span><span class="caret"></span>', T.term);
+  dotAt(T.term, fixedPoint('#pm'), 10); dotHide(T.term + beat(0.5));
+  typeText($('#typed'), 'add a sync check. write the test first.', T.term + beat(0.5), 24);
+  term.line('<span class="tool">Write tests/test_synccheck.py</span>', T.tests, '', 'chip');
+  term.line('<span class="dim">  test_cues_with_hits_pass_and_a_late_hit_fails</span>', T.tests + beat(1), '', 'pop', { i: 0 });
+  term.line('<span class="dim">  test_voice_and_breath_cues_are_not_picture_cues</span>', T.tests + beat(2), '', 'pop', { i: 1 });
+  term.line('<span class="tool">Run pytest -q tests/test_synccheck.py</span>', T.run, '', 'chip');
+  term.line('<span class="fail">  1 failed, 1 passed in 0.33s</span>', T.run + beat(1), '', 'count');
+  term.line('<span class="tool">Edit engine/synccheck.py</span>', T.fix, '', 'chip');
+  term.line('<span class="del">-   peak above a fixed 0.12</span>', T.fix + beat(1), '', 'pop', { i: 2 });
+  term.line('<span class="add">+   peak 3 MADs above the local median</span>', T.fix + beat(2), '', 'pop', { i: 3 });
+  term.line('<span class="pass">  2 passed in 0.23s</span>', T.drop, '', 'drop');
+  tl.fromTo(term.card, { scale: 1.035 }, { scale: 1, duration: 0.1, ease: 'power2.out', immediateRender: false }, T.drop);
+
+  // ------------------------------------------------------------ the numbers it was built for
+  const s3 = scene(T.stat1, T.stat2);
+  cue(T.stat1, 'cut');
+  const l3 = el('div', 'cap', s3); l3.style.top = '250px'; l3.style.fontSize = '56px'; l3.style.color = 'var(--muted)';
+  popWords(words(l3, 'Random times that still pass the check'), T.stat1 + beat(0.5), beat(0.25), 'pop');
+  const n3 = el('div', 'num', s3); n3.style.top = '400px';
+  const a3 = el('span', 'w', n3, '<span id="c3">75</span>%'); pop(a3, T.stat1 + beat(1.5), 1.04);
+  counter($('#c3'), 75, 33, T.stat1 + beat(2), T.stat1 + beat(3));
+  cue(T.stat1 + beat(3), 'num');
+  const f3 = el('div', 'note', s3, 'the old detector counted noise as a hit · measured on the same 30 s mix'); f3.style.top = '720px';
+
+  const s4 = scene(T.stat2, T.final);
+  cue(T.stat2, 'cut');
+  const l4 = el('div', 'cap', s4); l4.style.top = '250px'; l4.style.fontSize = '56px'; l4.style.color = 'var(--muted)';
+  popWords(words(l4, 'Picture cues heard in the mix'), T.stat2 + beat(0.5), beat(0.25), 'pop');
+  const n4 = el('div', 'num', s4); n4.style.top = '400px';
+  const a4 = el('span', 'w accent', n4, '47 / 47'); pop(a4, T.stat2 + beat(2), 1.05); cue(T.stat2 + beat(2), 'num');
+  const f4 = el('div', 'note', s4, 'each within one frame (33 ms) of its sound'); f4.style.top = '720px';
+
+  // ------------------------------------------------------------ the name; the dot lands as the last period
+  const s5 = scene(T.final, T.end);
+  cue(T.final, 'final');
+  const h5 = el('div', 'big', s5); h5.style.top = '360px'; h5.style.fontSize = '150px';
+  pop(el('span', 'w', h5, 'Claude Code'), T.final, 1.04);
+  const t5 = el('div', 'cap', s5); t5.style.top = '560px'; t5.style.fontSize = '54px'; t5.style.color = 'var(--muted)';
+  const ph = ['Test first.', 'Then trust it'].map((x) => { const s = el('span', 'w', t5, x); t5.appendChild(document.createTextNode(' ')); return s; });
+  const p5 = el('span', 'pd', ph[1]); p5.id = 'p5';
+  ph.forEach((s, i) => { pop(s, T.final + beat(0.5 + 0.5 * i), 1.05); cue(T.final + beat(0.5 + 0.5 * i), 'word', { i }); });
+  dotAt(T.final + beat(1), fixedPoint('#p5'), 7); dotHide(T.end);
+
+  const s6 = scene(T.end, null, 'dark');
+  const n6 = el('div', 'note', s6, 'Unofficial sample, made with the reference-motion-video skill.<br>Claude Code is made by Anthropic. This film is not affiliated with or endorsed by Anthropic.');
+  n6.style.top = '470px';
+
+  section(T.intro, T.term, 'intro'); section(T.term, T.tests, 'tease'); section(T.tests, T.fix, 'light', { e: 1.0 });
+  section(T.fix, T.breath, 'build'); section(T.riser, T.breath, 'riser'); section(T.breath, T.drop, 'breath');
+  section(T.drop, T.final, 'groove', { e: 1.0 }); section(T.end, T.total, 'end');
+  finish(T, T.total);
+}
+document.fonts.load('800 150px Inter').then(() => document.fonts.load('500 30px "JetBrains Mono"')).then(() => document.fonts.ready).then(build);
+</script>
+</body>
+</html>
