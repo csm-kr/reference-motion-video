@@ -2,8 +2,6 @@
 
 A skill for Claude Code and Codex that plans and builds product videos from references, real product screens, kinetic typography, and music composed to the picture. Author the film as HTML on one paused GSAP timeline, then render each frame to H.264 MP4 with the bundled engine.
 
-Based on [`csm-kr/motion-demo-video` at `5ab050d`](https://github.com/csm-kr/motion-demo-video/tree/5ab050dc456cfd64e30ef28931802171f7296d14), **October 18, 2026**, before the ten-style collection and the later three.js stage. This repository starts with one initial commit. The engine and Python tests are preserved from that snapshot; the skill name, public instructions, and installation guide have been adapted.
-
 ## What it does
 
 1. Check the setup and ask for the purpose, audience, message, proof, references, format, and sound.
@@ -12,7 +10,7 @@ Based on [`csm-kr/motion-demo-video` at `5ab050d`](https://github.com/csm-kr/mot
 4. Register picture events as sound cues and mark sections by purpose: problem, build, groove, breath, stop, ending.
 5. Compose a score, mix narration when supplied, render the film, and check timing, loudness, readability, and transitions.
 
-Three runnable sample films live in `examples/claude-code/`: an 18-second launch, a 30-second explainer, and a 23-second demo. Their music palettes are `drums_launch`, `soft_pulse`, and `bright_demo`.
+See `examples/claude-code/` for runnable launch, explainer, and demo films, with `drums_launch`, `soft_pulse`, and `bright_demo` music palettes.
 
 ## Install
 
@@ -81,15 +79,9 @@ To make your own film, start with the closest sample, keep its engine and shared
 
 - `SKILL.md`: the agent workflow and engine contract.
 - `references/`: genres, transitions, capture, sound, narration, and review methods.
-- `examples/moments-v2.html` and `examples/ads/`: earlier worked compositions for study. Product captures and photos are not bundled; adapt their asset and script paths before rendering.
+- `examples/moments-v2.html` and `examples/ads/`: worked compositions for study. Product captures and photos are not bundled; adapt their asset and script paths before rendering.
 - `engine/`: frame renderer, cue extraction, three music palettes, audio mixing, and sync checks. The composer targets -14 LUFS and true peak at or below -1 dBTP; inspect the report and final MP4.
 
 Instrument samples: VSCO-2-CE by Versilian Studios (CC0). SFX: HeyGen HyperFrames under the Pixabay Content License; preserve the downloaded credits. `soft_pulse` and the older piano preset use Salamander Grand Piano by Alexander Holm (CC-BY 3.0; attribution required when used). Check the applicable terms for any assets you add.
 
 The Claude Code sample films are unofficial demonstrations and are not affiliated with or endorsed by Anthropic.
-
-## 한국어
-
-10개 스타일과 3D 무대가 추가되기 전인 **2026년 10월 18일 버전**을 별도 스킬로 정리했습니다. 레퍼런스 분석 → 브리프와 장면표 작성 → 실제 제품 화면과 타이포 모션 제작 → 화면의 큐에 맞춘 작곡 → MP4 렌더와 검수 순서로 진행합니다.
-
-출시 영상·설명 영상·제품 데모 예제 3개와 음악 팔레트 3종을 포함합니다. Codex에서는 `$reference-motion-video`, Claude Code에서는 `/reference-motion-video`로 사용합니다. 영상 길이·언어·화면비·게시 위치는 사용자의 브리프에 맞춰 정하며, 특정 해커톤의 제출 규칙을 기본값으로 강제하지 않습니다.

@@ -7,7 +7,7 @@ description: Plan and build product launch films, explainers, demo walkthroughs,
 
 **The film is HTML, and its cue list is the score.** Every visible event registers a cue next to the constant that moves the picture; every stretch of the film is a section named by its purpose. A palette turns those into music that hits each frame and acts out the story: no rhythm while the problem is stated, a groove when the product works, a breath before the payoff, drums out when the product deliberately stops, a dead stop on the logo.
 
-Worked examples: `examples/claude-code/` (three runnable films on one stage: a launch film, a concept explainer and a demo walkthrough, each with a different palette), `examples/moments-v2.html` (36 s continuous-shot ad), `examples/ads/` (Moments ads: drums, orchestral, violin). The earlier Moments compositions need product assets and path adjustments; they are references, not ready-to-render demos. This skill preserves the October 18, 2026 workflow, before the ten-style collection and later 3D stage.
+Worked examples: `examples/claude-code/` (runnable launch, explainer and demo films on a shared stage, each with a different palette), `examples/moments-v2.html` (36 s continuous-shot ad), `examples/ads/` (Moments ads: drums, orchestral, violin). The Moments compositions need product assets and path adjustments; they are references, not ready-to-render demos.
 
 ## Rules that decided past films
 
@@ -80,7 +80,7 @@ python engine/compose.py cues.json score.wav --palette bright_demo [--narr narr.
 
 ### 10. Deliver
 
-Deliver the brief's length and format, normally H.264 MP4, an `.srt` sidecar when captions are present, and a thumbnail or cutdowns if requested. This snapshot's built-in stage and renderer are 1920×1080; another aspect ratio requires explicit adaptation, not a renderer flag. Report checks actually run and their evidence. Publishing is a separate action unless the user has already requested it.
+Deliver the brief's length and format, normally H.264 MP4, an `.srt` sidecar when captions are present, and a thumbnail or cutdowns if requested. The built-in stage and renderer are 1920×1080; another aspect ratio requires explicit adaptation, not a renderer flag. Report checks actually run and their evidence. Publishing is a separate action unless the user has already requested it.
 
 ## Sections, by purpose
 
