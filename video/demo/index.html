@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<!--
+  Film 3 · demo walkthrough, 30 s, palette bright_demo (100 BPM: beat 0.6 s, bar 2.4 s; the drop on bar 6).
+  The outcome first (stills of the three films), then the one task this session did, in its real order with its real
+  clock times (KST, from the session log): the prompt, reading the skill, the interview, tests, brief and plan, building,
+  composing, rendering, the sync check. The numbers at the end are counted from the same session log. Unofficial, no logo.
+-->
+<script>window.BPM = 100;</script>
+<script src="../../engine/node_modules/gsap/dist/gsap.min.js"></script>
+<link rel="stylesheet" href="../../examples/claude-code/stage.css">
+<link rel="stylesheet" href="../ko.css">
+<style>
+  :root { --accent: #7C5CFF; }
+  .term .body { font-size: 28px; }
+  .term .ln.wrap { white-space: pre-wrap; }
+  .term .bar .ff { margin-left: auto; color: #8A8F9C; }
+  .term .bar .ff b { color: var(--accent); font-weight: 700; }
+  .phase { position: absolute; left: 0; width: 1920px; top: 52px; text-align: center; font-weight: 800; font-size: 64px; letter-spacing: -0.02em; display: none; }
+</style>
+</head>
+<body>
+<div id="stage"><div id="dot"></div></div>
+<script src="../../examples/claude-code/stage.js"></script>
+<script src="../ko.js"></script>
+<script>
+// from this session: the film's own pipeline runs, and counts from the session log up to R.asOf (KST)
+const R = {
+  tWrite: '21:22', tCues: '21:23', tCompose: '21:24', tRender: '21:26', tSync: '21:29',
+  lufs: '-14.0', tp: '-2.0', cn: 51, cmiss: 0, n: 51, miss: 0, chance: 0.335, frames: 900,
+  msgs: 4, tools: 63, minutes: 26, asOf: '21:30',
+};
+const PROMPT = '이 스킬을 /reference-to-video 이거 이용해서 클로드 코드에 대한거 30초짜리 하나 만들어보자.';
+const T = {
+  intro: 0, term: bar(1), read: bar(2), ask: bar(3), plan: bar(4), make: bar(5), riser: bar(5) + beat(1), breath: bar(5) + beat(3),
+  drop: bar(6), check: bar(7), stat1: bar(8), stat2: bar(9), stat3: bar(10), final: bar(11), end: bar(11) + beat(2), total: bar(12.5),
+};
+const LH = 28 * 1.6, VIS = 15;   // terminal row height and the rows that fit before it scrolls
+const ts = (hhmm) => `<span class="dim">${hhmm}</span> `;
+const IND = '      ';
+function build() {
+  // ------------------------------------------------------------ the outcome first: the three films
+  const s1 = scene(T.intro, T.term);
+  const h1 = el('div', 'big', s1); h1.style.top = '120px'; h1.style.fontSize = '100px';
+  const w1 = el('span', 'w', h1, '30초 영상 세 편'); const p1 = el('span', 'pd', w1); p1.id = 'p1';
+  pop(w1, beat(0.5), 1.05); cue(beat(0.5), 'word');
+  [['launch', '런칭'], ['explainer', '설명'], ['demo', '데모']].forEach(([f, label], i) => {
+    const th = el('div', 'thumb', s1, `<img src="../thumbs/${f}.jpg"><div>${label}</div>`);
+    Object.assign(th.style, { left: `${120 + 580 * i}px`, top: '400px' });
+    pop(th, beat(1 + 0.5 * i), 1.06); cue(beat(1 + 0.5 * i), 'pop', { i });
+  });
+  dotAt(beat(3), fixedPoint('#p1'), 9); cue(beat(3), 'dot');
+
+  // ------------------------------------------------------------ one terminal, the session in its real order
+  const s2 = scene(T.term, T.stat1, 'dark');
+  cue(T.term, 'cut', { big: 1 });
+  const term = terminal(s2, 160, 170, 1600, 850);
+  el('span', 'ff', term.card.querySelector('.bar'), '<b>▶▶</b> 압축 · 순서와 시각은 실제 그대로');
+  const phase = (t0, t1, text, accent = false) => {
+    const d = el('div', `phase${accent ? ' accent' : ''}`, s2, text); tl.set(d, { display: 'block' }, t0); if (t1) tl.set(d, { display: 'none' }, t1);
+    tl.fromTo(d, { scale: 1.06 }, { scale: 1, duration: 0.067, ease: 'power2.out', immediateRender: false }, t0);
+  };
+  // rows scroll inside a clipped viewport, so nothing slides over the title bar
+  const vp = el('div', '', term.body); Object.assign(vp.style, { height: `${VIS * LH}px`, overflow: 'hidden' });
+  const list = el('div', '', vp);
+  let rows = 0, y = 0;
+  const line = (html, t, type, cls = '') => { rows++; const l = el('div', `ln ${cls}`, list, html); show(l, t); if (type) cue(t, type); return l; };
+  const scroll = (t) => { const ny = -Math.max(0, rows - VIS) * LH; if (ny !== y) tl.fromTo(list, { y }, { y: ny, duration: 0.25, ease: 'power2.out', immediateRender: false }, t); y = ny; };
+
+  line(`${ts('21:04')}<span class="prompt" id="pm"></span><span id="typed"></span><span class="caret"></span>`, T.term, null, 'wrap');
+  dotAt(T.term, fixedPoint('#pm'), 9); dotHide(T.term + beat(0.5));
+  phase(T.term, T.read, '시작은 말 한 줄.');
+  typeText($('#typed'), PROMPT, T.term + beat(0.5), 36);
+
+  phase(T.read, T.ask, '읽고'); cue(T.read, 'cut');
+  line(`${ts('21:04')}<span class="tool">Bash(cat SKILL.md && cat README.md)</span>`, T.read + beat(1), 'chip');
+  line(`<span class="dim">${IND}# Reference motion video</span>`, T.read + beat(1.5), 'pop');
+  line(`${ts('21:04')}<span class="tool">Bash(ffmpeg -version; node -v; .venv/bin/python -V)</span>`, T.read + beat(2.5), 'chip');
+  line(`${IND}ffmpeg version 8.1.2 · node: v26.4.0 · py: Python 3.12.13`, T.read + beat(3), 'pop');
+
+  phase(T.ask, T.plan, '모르면, 묻고'); cue(T.ask, 'cut');
+  line(`${ts('21:05')}<span class="tool">AskUserQuestion</span>`, T.ask + beat(1), 'chip');
+  line(`${IND}장르   → 3개 다 하자`, T.ask + beat(1.5), 'pop');
+  line(`${IND}메시지 → 이 영상도 Claude Code가`, T.ask + beat(2), 'pop');
+  line(`${IND}언어   → 한국어`, T.ask + beat(2.5), 'pop');
+
+  phase(T.plan, T.make, '계획하고'); cue(T.plan, 'cut');
+  line(`${ts('21:06')}<span class="tool">Bash(.venv/bin/python -m pytest -q tests/)</span>`, T.plan + beat(1), 'chip');
+  line(`<span class="pass">${IND}31 passed in 81.30s</span>`, T.plan + beat(1.5), 'count');
+  line(`${ts('21:07')}<span class="tool">Write(video/BRIEF.md)</span>`, T.plan + beat(2.5), 'chip');
+  line(`${ts('21:12')}<span class="tool">Write(video/PLAN.md)</span>`, T.plan + beat(3), 'chip');
+
+  phase(T.make, T.drop, '만들고'); cue(T.make, 'cut');
+  line(`${ts(R.tWrite)}<span class="tool">Write(video/demo/index.html)</span>`, T.make + beat(1), 'chip');
+  line(`${ts(R.tCues)}<span class="tool">Bash(node engine/cues.mjs video/demo/index.html …)</span>`, T.make + beat(1.5), 'chip');
+  scroll(T.make);
+  line(`${ts(R.tCompose)}<span class="tool">Bash(.venv/bin/python engine/compose.py … --palette bright_demo)</span>`, T.make + beat(2), 'chip');
+  scroll(T.make + beat(2));
+
+  phase(T.drop, T.check, '음악까지 맞추고.', true); cue(T.drop, 'drop');
+  line(`${IND}"lufs": ${R.lufs}, "true_peak": ${R.tp}, "sync": {"n": ${R.cn}, "miss": ${R.cmiss}, …}`, T.drop);
+  scroll(T.drop);
+  tl.fromTo(term.card, { scale: 1.02 }, { scale: 1, duration: 0.1, ease: 'power2.out', immediateRender: false }, T.drop);
+
+  phase(T.check, null, '직접 검사한다.'); cue(T.check, 'cut');
+  line(`${ts(R.tRender)}<span class="tool">Bash(node engine/render.mjs video/demo/index.html out/video/demo.mp4 …)</span>`, T.check + beat(1), 'chip');
+  line(`${IND}wrote out/video/demo.mp4: ${R.frames} frames @ 30fps`, T.check + beat(1.5), 'pop');
+  scroll(T.check + beat(1));
+  line(`${ts(R.tSync)}<span class="tool">Bash(.venv/bin/python engine/synccheck.py out/video/demo.mp4 …)</span>`, T.check + beat(2.5), 'chip');
+  line(`<span class="pass">${IND}{"n": ${R.n}, "miss": ${R.miss}, "chance": ${R.chance}}</span>`, T.check + beat(3), 'num');
+  scroll(T.check + beat(2.5));
+
+  // ------------------------------------------------------------ the numbers, counted from the session log
+  const stat = (t0, t1, label, value, note, count) => {
+    const s = scene(t0, t1); cue(t0, 'cut');
+    const l = el('div', 'cap', s); l.style.top = '250px'; l.style.fontSize = '60px'; l.style.color = 'var(--muted)';
+    popWords(words(l, label), t0 + beat(0.5), beat(0.25), 'pop');
+    const n = el('div', 'num', s); n.style.top = '400px';
+    const v = el('span', 'w accent', n, value); pop(v, t0 + beat(1.5), 1.04);
+    if (count) counter($(`#${count.id}`), 0, count.to, t0 + beat(1.5), t0 + beat(3), (x) => String(Math.round(x)));
+    cue(t0 + beat(1.5), count ? 'count' : 'num'); if (count) cue(t0 + beat(3), 'num');
+    const f = el('div', 'note', s, note); f.style.top = '720px';
+  };
+  stat(T.stat1, T.stat2, '사람이 보낸 메시지', `${R.msgs}개`, `직접 입력한 메시지 수 · 선택지 질문 1번은 따로 답함 · 세션 기록 기준, ${R.asOf}까지`);
+  stat(T.stat2, T.stat3, 'Claude Code의 도구 호출', '<span id="c2">0</span>번', `읽기·실행·쓰기·질문을 합친 수 · 세션 기록 기준, ${R.asOf}까지`, { id: 'c2', to: R.tools });
+  stat(T.stat3, T.final, '첫 요청부터 걸린 시간', `${R.minutes}분`, `21:04 → ${R.asOf} · 사람의 답을 기다린 시간 포함 · 세션 기록 기준`);
+
+  // ------------------------------------------------------------ the name; the dot lands as the last period
+  const s5 = scene(T.final, T.end);
+  cue(T.final, 'final');
+  const h5 = el('div', 'big', s5); h5.style.top = '350px'; h5.style.fontSize = '150px';
+  pop(el('span', 'w', h5, 'Claude Code'), T.final, 1.04);
+  const t5 = el('div', 'cap', s5); t5.style.top = '570px'; t5.style.fontSize = '58px'; t5.style.color = 'var(--muted)';
+  const tag = el('span', 'w', t5, '이 영상도 이렇게 만들었습니다'); const p5 = el('span', 'pd', tag); p5.id = 'p5'; pop(tag, T.final, 1.03);
+  dotAt(T.final, fixedPoint('#p5'), 8); dotHide(T.end);
+
+  const s6 = scene(T.end, null, 'dark');
+  const n6 = el('div', 'note', s6, '비공식 샘플 · reference-motion-video 스킬로 만들었습니다.<br>Claude Code는 Anthropic이 만듭니다. 이 영상은 Anthropic과 관계없으며 보증받지 않았습니다.');
+  n6.style.top = '470px';
+
+  section(T.intro, T.term, 'intro'); section(T.term, T.read, 'tease'); section(T.read, T.make, 'light', { e: 1.0 });
+  section(T.make, T.breath, 'build'); section(T.riser, T.breath, 'riser'); section(T.breath, T.drop, 'breath');
+  section(T.drop, T.stat1, 'groove', { e: 1.0 }); section(T.stat1, T.final, 'groove', { e: 1.1 }); section(T.end, T.total, 'end');
+  finish(T, T.total);
+}
+koStart(build);
+</script>
+</body>
+</html>

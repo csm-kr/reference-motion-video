@@ -1,0 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500;700;800&display=block');
+/* Korean cards on the shared stage: Inter keeps the Latin, Noto Sans KR takes the Hangul. */
+#stage, .big, .cap, .node, .note, .label { font-family: Inter, 'Noto Sans KR', sans-serif; word-break: keep-all; }
+.big { line-height: 1.2; letter-spacing: -0.03em; }
+.term .body, .snip { font-family: 'JetBrains Mono', 'Noto Sans KR', monospace; }
+/* the terminal's line styles, for snippets outside a terminal card */
+.snip .tool { color: var(--tool); }
+.snip .tool::before { content: '\25CF  '; }
+.snip .dim { color: #8A8F9C; }
+.snip .pass { color: var(--pass); font-weight: 700; }
+.pd { display: inline-block; width: .17em; height: .17em; margin-left: .04em; }
+.thumb { position: absolute; width: 520px; visibility: hidden; }
+.thumb img { display: block; width: 520px; height: 292px; border-radius: 16px; box-shadow: 0 24px 60px rgba(0,0,0,.18); background: var(--term); }
+.thumb div { margin-top: 18px; text-align: center; font: 600 28px/1.3 Inter, 'Noto Sans KR', sans-serif; color: var(--muted); }
+.num { position: absolute; left: 0; width: 1920px; text-align: center; font: 800 240px/1 Inter, 'Noto Sans KR', sans-serif; letter-spacing: -0.05em; }

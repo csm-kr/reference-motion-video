@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<!--
+  Film 1 · launch, 30 s, palette drums_launch (100 BPM: beat 0.6 s, bar 2.4 s; the drop on bar 2).
+  "이 영상도 Claude Code가 만들었습니다." Every terminal line is real output from the session that made this film: the
+  user's prompt, the interview answers, pytest, then this film's own compose, render and synccheck runs (R below).
+  Unofficial: no logo; the end card says it is not affiliated with Anthropic.
+  The hero dot: the prompt marker, the period of "한 줄" and "한 편", then the period of the last line on the final hit.
+-->
+<script>window.BPM = 100;</script>
+<script src="../../engine/node_modules/gsap/dist/gsap.min.js"></script>
+<link rel="stylesheet" href="../../examples/claude-code/stage.css">
+<link rel="stylesheet" href="../ko.css">
+<style>:root { --accent: #4C6FFF; } .term .ln.wrap { white-space: pre-wrap; }</style>
+</head>
+<body>
+<div id="stage"><div id="dot"></div></div>
+<script src="../../examples/claude-code/stage.js"></script>
+<script src="../ko.js"></script>
+<script>
+// this film's own pipeline results: compose.py, render.mjs, synccheck.py on the final MP4
+const R = { palette: 'drums_launch', lufs: '-14.0', frames: 900, n: 55, miss: 0, chance: 0.399 };
+const PROMPT = '이 스킬을 /reference-to-video 이거 이용해서 클로드 코드에 대한거 30초짜리 하나 만들어보자.';
+const T = {
+  intro: 0, build: bar(1), riser: bar(1) + beat(1), breath: bar(1) + beat(3), drop: bar(2),
+  read: bar(3), ask: bar(4), fill: bar(4) + beat(3), test: bar(5), score: bar(6), render: bar(7), check: bar(8),
+  three: bar(9), last: bar(10), riser2: bar(10) + beat(1), breath2: bar(10) + beat(3), final: bar(11), end: bar(11) + beat(2),
+  total: bar(12.5),
+};
+// a claim on top, its proof below: real output whose lines land on the beat ([html, beat, cue type])
+function claim(t0, t1, text, lines, dark = false) {
+  const s = scene(t0, t1, dark ? 'dark' : '');
+  const h = el('div', 'big', s); h.style.top = '170px'; h.style.fontSize = '110px';
+  popWords(words(h, text), t0 + beat(0.5), beat(0.5), 'word');
+  const sn = el('div', 'snip', s); Object.assign(sn.style, { left: '230px', top: '420px', width: '1460px', fontSize: '38px' });
+  if (dark) sn.style.background = '#1E2129';
+  show(sn, t0 + beat(lines[0][1]));
+  lines.forEach(([html, b, type], i) => { const l = el('div', 'ln', sn, html); l.style.visibility = 'hidden'; show(l, t0 + beat(b)); if (type) cue(t0 + beat(b), type, { i }); });
+}
+function build() {
+  // ------------------------------------------------------------ the ask, already moving: the user's real prompt
+  const s1 = scene(T.intro, T.build, 'dark');
+  const term = terminal(s1, 260, 330, 1400, 420);
+  term.body.style.fontSize = '44px';
+  term.line('<span class="prompt" id="pm"></span><span id="typed"></span><span class="caret"></span>', T.intro, 'wrap');
+  dotAt(T.intro, fixedPoint('#pm'), 12); dotHide(beat(0.5));
+  typeText($('#typed'), PROMPT, beat(0.5), 36);
+
+  // ------------------------------------------------------------ name and promise
+  const s2 = scene(T.build, T.drop);
+  cue(T.build, 'cut', { big: 1 });
+  const h2 = el('div', 'big', s2); h2.style.top = '330px'; h2.style.fontSize = '140px';
+  const w2 = [...words(el('div', '', h2), 'Claude Code에게'), ...words(el('div', '', h2), '말 한 줄')];
+  const p1 = el('span', 'pd', w2[4]); p1.id = 'p1';
+  popWords(w2, T.build + beat(0.5), beat(0.5), 'word');
+  dotAt(T.breath, fixedPoint('#p1'), 13); cue(T.breath, 'dot');
+
+  const s3 = scene(T.drop, T.read);
+  cue(T.drop, 'drop');
+  const h3 = el('div', 'big accent', s3); h3.style.top = '360px'; h3.style.fontSize = '220px';
+  const w3 = el('span', 'w', h3, '영상 한 편'); const p2 = el('span', 'pd', w3); p2.id = 'p2'; pop(w3, T.drop, 1.06);
+  dotAt(T.drop, fixedPoint('#p2'), 19); dotHide(T.read);
+  const c3 = el('div', 'cap', s3); c3.style.top = '700px'; c3.style.fontSize = '54px'; c3.style.color = 'var(--muted)';
+  pop(el('span', 'w', c3, '30초, 음악까지.'), T.drop + beat(2), 1.05); cue(T.drop + beat(2), 'word');
+
+  // ------------------------------------------------------------ what it did, each claim proven by real output
+  cue(T.read, 'cut');
+  claim(T.read, T.ask, '스킬을 읽고', [
+    ['<span class="tool">Bash(cat SKILL.md)</span>', 1.5, 'chip'],
+    ['<span class="dim">  The film is HTML, and its cue list is the score.</span>', 2, 'pop'],
+  ]);
+  cue(T.ask, 'break');
+  claim(T.ask, T.test, '모르면, 묻고', [
+    ['<span class="tool">AskUserQuestion</span>', 1.5, 'chip'],
+    ['  장르   → 3개 다 하자', 2, 'pop'],
+    ['  메시지 → 이 영상도 Claude Code가', 2.5, 'pop'],
+    ['  언어   → 한국어', 3, 'pop'],
+  ], true);
+  cue(T.test, 'reentry');
+  claim(T.test, T.score, '테스트부터 돌리고', [
+    ['<span class="tool">Bash(.venv/bin/python -m pytest -q tests/)</span>', 1.5, 'chip'],
+    ['<span class="pass">  31 passed in 81.30s</span>', 2.5, 'count'],
+  ]);
+  cue(T.score, 'cut');
+  claim(T.score, T.render, '화면에 맞춰 작곡하고', [
+    ['<span class="tool">Bash(.venv/bin/python engine/compose.py …)</span>', 2, 'chip'],
+    [`  "palette": "${R.palette}", "lufs": ${R.lufs}`, 2.5, 'num'],
+  ]);
+  cue(T.render, 'cut');
+  claim(T.render, T.check, '한 프레임씩 렌더하고', [
+    ['<span class="tool">Bash(node engine/render.mjs video/launch/index.html …)</span>', 2, 'chip'],
+    [`  wrote out/video/launch.mp4: ${R.frames} frames @ 30fps`, 2.5, 'num'],
+  ]);
+
+  // ------------------------------------------------------------ the check, as one number
+  const s8 = scene(T.check, T.three);
+  cue(T.check, 'cut', { big: 1 });
+  const l8 = el('div', 'cap', s8); l8.style.top = '230px'; l8.style.fontSize = '60px'; l8.style.color = 'var(--muted)';
+  popWords(words(l8, '직접 검사한다.'), T.check + beat(0.5), beat(0.5), 'word');
+  const n8 = el('div', 'num', s8); n8.style.top = '380px';
+  pop(el('span', 'w accent', n8, `${R.n - R.miss} / ${R.n}`), T.check + beat(2), 1.05); cue(T.check + beat(2), 'num');
+  const f8 = el('div', 'note', s8, `화면 큐마다 한 프레임(33 ms) 안에 소리 · 아무 시각이나 통과할 확률 ${Math.round(R.chance * 100)}% · synccheck.py`);
+  f8.style.top = '700px';
+
+  // ------------------------------------------------------------ montage: the three films, real stills
+  const s9 = scene(T.three, T.last);
+  cue(T.three, 'cut');
+  const h9 = el('div', 'cap', s9); h9.style.top = '150px'; h9.style.fontSize = '80px'; h9.style.fontWeight = '800';
+  popWords(words(h9, '장르 셋, 음악 셋.'), T.three + beat(0.25), beat(0.25), 'word');
+  [['launch', '런칭 · drums_launch'], ['explainer', '설명 · soft_pulse'], ['demo', '데모 · bright_demo']].forEach(([f, label], i) => {
+    const th = el('div', 'thumb', s9, `<img src="../thumbs/${f}.jpg"><div>${label}</div>`);
+    Object.assign(th.style, { left: `${120 + 580 * i}px`, top: '380px' });
+    pop(th, T.three + beat(1.5 + 0.5 * i), 1.06); cue(T.three + beat(1.5 + 0.5 * i), 'pop', { i });
+  });
+
+  // ------------------------------------------------------------ the line; the dot lands as its period on the final hit
+  const s10 = scene(T.last, T.end);
+  const h10 = el('div', 'big', s10); h10.style.top = '330px'; h10.style.fontSize = '112px';
+  const w10 = words(el('div', '', h10), '이 영상도');
+  const p3 = el('span', 'pd', w10[1]); p3.id = 'p3';
+  popWords(w10, T.last + beat(0.5), beat(1), 'word');
+  dotAt(T.breath2, fixedPoint('#p3'), 10); cue(T.breath2, 'dot');
+  const l2 = el('div', '', h10); const w11 = el('span', 'w', l2, 'Claude Code가 만들었습니다');
+  const p4 = el('span', 'pd', w11); p4.id = 'p4';
+  cue(T.final, 'final'); pop(w11, T.final, 1.04);
+  dotAt(T.final, fixedPoint('#p4'), 10); dotHide(T.end);
+
+  // ------------------------------------------------------------ end card: silent
+  const s11 = scene(T.end, null, 'dark');
+  const n11 = el('div', 'note', s11, '비공식 샘플 · reference-motion-video 스킬로 만들었습니다.<br>Claude Code는 Anthropic이 만듭니다. 이 영상은 Anthropic과 관계없으며 보증받지 않았습니다.');
+  n11.style.top = '470px';
+
+  section(T.intro, T.build, 'intro'); section(T.build, T.breath, 'build'); section(T.riser, T.breath, 'riser');
+  section(T.breath, T.drop, 'breath'); section(T.drop, T.read, 'groove', { e: 1.0 }); section(T.read, T.ask, 'light', { e: 1.0 });
+  section(T.ask, T.fill, 'stop'); section(T.fill, T.test, 'build'); section(T.test, T.check, 'groove', { e: 1.0 });
+  section(T.check, T.last, 'groove', { e: 1.1 }); section(T.last, T.breath2, 'build'); section(T.riser2, T.breath2, 'riser');
+  section(T.breath2, T.final, 'breath'); section(T.end, T.total, 'end');
+  finish(T, T.total);
+}
+koStart(build);
+</script>
+</body>
+</html>

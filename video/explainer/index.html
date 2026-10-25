@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<!--
+  Film 2 · concept explainer, 30 s, palette soft_pulse (96 BPM: beat 0.625 s, bar 2.5 s; the drop on bar 2).
+  "이 영상의 음악은 어떻게 화면에 맞췄을까?" Four steps on a loop (screen, cues, score, check), each proven by this film's
+  own files and runs; the stop is SKILL.md's rule 5 (machine gates are not enough, the person picks by listening).
+  Same skeleton as examples/claude-code/explainer. Unofficial, no logo.
+-->
+<script>window.BPM = 96;</script>
+<script src="../../engine/node_modules/gsap/dist/gsap.min.js"></script>
+<link rel="stylesheet" href="../../examples/claude-code/stage.css">
+<link rel="stylesheet" href="../ko.css">
+<style>
+  :root { --accent: #0FA38A; }
+  #veil { position: absolute; inset: 0; background: rgba(18,19,24,.8); visibility: hidden; z-index: 5; }
+  .ring { position: absolute; left: 300px; top: 350px; width: 520px; height: 520px; border-radius: 50%; border: 4px dashed #D8D2C4; box-sizing: border-box; visibility: hidden; }
+  .stopcap { position: absolute; left: 0; width: 1920px; text-align: center; z-index: 6; color: #F4F1EA; }
+</style>
+</head>
+<body>
+<div id="stage"><div id="dot"></div></div>
+<script src="../../examples/claude-code/stage.js"></script>
+<script src="../ko.js"></script>
+<script>
+// this film's own pipeline results: cues.mjs, compose.py, synccheck.py on the final MP4
+const R = { cues: 43, lufs: '-14.1', tp: '-2.0', n: 43, miss: 0, chance: 0.299 };
+// the first three lines below are quoted on screen in step 1: keep them as they are
+const T = {
+  drop: bar(2), stop: bar(6),
+  reentry: bar(8), final: bar(10),
+  intro: 0, breath: beat(7), s1: bar(2), s2: bar(3), s3: bar(4), s4: bar(5),
+  fill: bar(7) + beat(2), end: bar(11), total: bar(12),
+};
+const C = { x: 560, y: 610, r: 260 };
+const NODES = [['화면', 0, -1], ['큐', 1, 0], ['작곡', 0, 1], ['검사', -1, 0]];
+const nodeDot = (n) => () => { const r = n.getBoundingClientRect(); return { x: r.left + 36, y: r.top + r.height / 2 }; };
+function build() {
+  // ------------------------------------------------------------ the question
+  const s1 = scene(T.intro, T.drop);
+  const q = el('div', 'big', s1); q.style.top = '330px'; q.style.fontSize = '116px';
+  const wq = [...words(el('div', '', q), '이 영상의 음악은'), ...words(el('div', '', q), '어떻게 화면에 맞췄을까?', 'accent')];
+  popWords(wq, beat(0.5), beat(0.5), 'word');
+
+  // ------------------------------------------------------------ the loop: screen, cues, score, check
+  const s2 = scene(T.drop, T.final);
+  const head = el('div', 'cap', s2); head.style.top = '90px'; head.style.fontSize = '64px';
+  const hA = el('div', '', head); popWords(words(hA, 'Claude Code가 네 단계로 맞춘다.'), T.drop + beat(0.5), beat(0.5), 'pop'); tl.set(hA, { display: 'none' }, T.stop);
+  cue(T.drop, 'drop');
+  const ring = el('div', 'ring', s2); show(ring, T.drop);
+  const nodeEl = NODES.map(([name, dx, dy], i) => {
+    const n = el('div', 'node', s2, name); Object.assign(n.style, { left: `${C.x + dx * C.r - 150}px`, top: `${C.y + dy * C.r - 56}px` });
+    show(n, T.drop); tl.set(n, { className: 'node on' }, [T.s1, T.s2, T.s3, T.s4][i]); return n;
+  });
+  const STEP = [
+    [T.s1, ['<span class="dim">video/explainer/index.html</span>', 'const T = {', '  drop: bar(2), stop: bar(6),', '  reentry: bar(8), final: bar(10),']],
+    [T.s2, ['<span class="dim">$ node engine/cues.mjs …</span>', '{"t":5,"type":"drop"}', '{"t":7.5,"type":"node","i":1}', `<span class="dim">$ jq '.cues|length' …</span>`, `${R.cues}`]],
+    [T.s3, ['<span class="dim">$ .venv/bin/python engine/compose.py \\</span>', '<span class="dim">    … --palette soft_pulse</span>', `"lufs": ${R.lufs}, "true_peak": ${R.tp}`]],
+    [T.s4, ['<span class="dim">$ .venv/bin/python engine/synccheck.py \\</span>', '<span class="dim">    out/video/explainer.mp4 …</span>', `<span class="pass">{"n": ${R.n}, "miss": ${R.miss}, "chance": ${R.chance}}</span>`]],
+  ];
+  STEP.forEach(([t0, lines], i) => {
+    cue(t0, 'node', { i }); dotAt(t0, nodeDot(nodeEl[i]), 13);
+    const end = i < 3 ? t0 + bar(1) : T.stop;
+    const sn = el('div', 'snip', s2); Object.assign(sn.style, { left: '1010px', top: '450px', width: '860px', fontSize: '28px' });
+    lines.forEach((h, j) => { const l = el('div', 'ln', sn, h); l.style.visibility = 'hidden'; show(l, t0 + beat(1 + 0.5 * j), end); if (j) cue(t0 + beat(1 + 0.5 * j), 'pop', { i: j }); });
+    show(sn, t0 + beat(1), end); cue(t0 + beat(1), 'chip', { i });
+  });
+
+  // ------------------------------------------------------------ the stop: passing the gates is not the same as fitting
+  const veil = el('div', '', s2); veil.id = 'veil'; show(veil, T.stop, T.reentry);
+  cue(T.stop, 'break');
+  const sc = el('div', 'stopcap', s2); sc.style.top = '170px'; sc.style.fontSize = '96px'; sc.style.fontWeight = '800'; sc.style.letterSpacing = '-0.03em';
+  const ws = words(sc, '통과해도, 고르는 건 사람.'); ws.forEach((w, i) => pop(w, T.stop + beat(0.5 + 0.5 * i), 1.05)); cue(T.stop + beat(0.5), 'word');
+  tl.set(sc, { display: 'none' }, T.reentry);
+  const sn = el('div', 'snip', s2); Object.assign(sn.style, { left: '200px', top: '470px', width: '1520px', fontSize: '34px', background: '#1E2129', zIndex: 6 });
+  [['<span class="dim">SKILL.md</span>', 3], ['5. Machine gates are necessary, not sufficient.', 3], ['   Sync, loudness and STT can all pass on music that does not fit.', 4],
+    ['<span class="accent">   The person decides by blind listening.</span>', 5]]
+    .forEach(([h, b]) => { const l = el('div', 'ln', sn, h); l.style.visibility = 'hidden'; show(l, T.stop + beat(b), T.reentry); });
+  show(sn, T.stop + beat(3), T.reentry); cue(T.stop + beat(3), 'chip'); cue(T.stop + beat(4), 'pop'); cue(T.stop + beat(5), 'num');
+  dotHide(T.stop);
+
+  // ------------------------------------------------------------ you pick; it goes round again, one node per beat
+  cue(T.reentry, 'reentry');
+  const hB = el('div', '', head); hB.style.display = 'none'; tl.set(hB, { display: 'block' }, T.reentry);
+  popWords(words(hB, '당신이 고르면, 나머지는 Claude Code가.'), T.reentry + beat(0.5), beat(0.5), 'pop');
+  for (let k = 0; k < 8; k++) dotAt(T.reentry + beat(k), nodeDot(nodeEl[k % 4]), 13);
+  dotHide(T.final - beat(0.5));
+
+  // ------------------------------------------------------------ the name; the dot lands as the last period
+  const s3 = scene(T.final, T.end);
+  cue(T.final, 'final');
+  const h3 = el('div', 'big', s3); h3.style.top = '350px'; h3.style.fontSize = '150px';
+  pop(el('span', 'w', h3, 'Claude Code'), T.final, 1.04);
+  const t3 = el('div', 'cap', s3); t3.style.top = '570px'; t3.style.fontSize = '58px'; t3.style.color = 'var(--muted)';
+  const tag = el('span', 'w', t3, '이 영상도 이렇게 만들었습니다'); const p3 = el('span', 'pd', tag); p3.id = 'p3'; pop(tag, T.final, 1.03);
+  dotAt(T.final, fixedPoint('#p3'), 8); dotHide(T.end);
+
+  const s4 = scene(T.end, null, 'dark');
+  const n4 = el('div', 'note', s4, '비공식 샘플 · reference-motion-video 스킬로 만들었습니다.<br>Claude Code는 Anthropic이 만듭니다. 이 영상은 Anthropic과 관계없으며 보증받지 않았습니다.');
+  n4.style.top = '470px';
+
+  section(T.intro, T.breath, 'intro'); section(T.breath, T.drop, 'breath');
+  section(T.s1, T.s2, 'groove', { e: 0.5 }); section(T.s2, T.s3, 'groove', { e: 0.65 });
+  section(T.s3, T.s4, 'groove', { e: 0.8 }); section(T.s4, T.stop, 'groove', { e: 0.95 });
+  section(T.stop, T.fill, 'stop'); section(T.fill, T.reentry, 'build'); section(T.reentry, T.final, 'groove', { e: 1.0 });
+  section(T.end, T.total, 'end');
+  finish(T, T.total);
+}
+koStart(build);
+</script>
+</body>
+</html>
