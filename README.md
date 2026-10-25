@@ -4,19 +4,25 @@ A skill for Claude Code and Codex that plans and builds product videos from refe
 
 ## Made with this skill
 
-Three 30-second films about Claude Code, in Korean, made by Claude Code with this skill in one session: one prompt, a short interview, an approved brief and plan, then the build, the scores, the renders and the checks. Every terminal line in them is real output from that session. The GIFs are silent previews; each MP4 carries a score composed to its cues. Unofficial: not affiliated with or endorsed by Anthropic.
+Three 30-second films about Claude Code, in Korean, made by Claude Code with this skill in one session: one prompt, a short interview, an approved brief and plan, then the build, the scores, the renders and the checks. Every terminal line in them is real output from that session. The GIFs are silent previews; the player under each one has the score composed to its cues. Unofficial: not affiliated with or endorsed by Anthropic.
 
 **Launch** · `drums_launch`
 
 ![Launch film: one prompt becomes a 30-second film](docs/films/launch.gif)
 
+https://github.com/user-attachments/assets/7b156712-12f3-4004-a4ba-25611de4e551
+
 **Explainer** · `soft_pulse`
 
 ![Explainer film: how the music was fitted to the picture](docs/films/explainer.gif)
 
+https://github.com/user-attachments/assets/b1b48c04-c1e1-4394-be41-70dfd68e5f6e
+
 **Demo** · `bright_demo`
 
 ![Demo film: the session that made these films, in its real order](docs/films/demo.gif)
+
+https://github.com/user-attachments/assets/f78d901b-db2f-4c98-b9d4-e2bc127e52a1
 
 ## What it does
 
