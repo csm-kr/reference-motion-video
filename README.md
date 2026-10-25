@@ -2,6 +2,22 @@
 
 A skill for Claude Code and Codex that plans and builds product videos from references, real product screens, kinetic typography, and music composed to the picture. Author the film as HTML on one paused GSAP timeline, then render each frame to H.264 MP4 with the bundled engine.
 
+## Made with this skill
+
+Three 30-second films about Claude Code, in Korean, made by Claude Code with this skill in one session: one prompt, a short interview, an approved brief and plan, then the build, the scores, the renders and the checks. Every terminal line in them is real output from that session. The GIFs are silent previews; each MP4 carries a score composed to its cues. Unofficial: not affiliated with or endorsed by Anthropic.
+
+**Launch** · `drums_launch`
+
+![Launch film: one prompt becomes a 30-second film](docs/films/launch.gif)
+
+**Explainer** · `soft_pulse`
+
+![Explainer film: how the music was fitted to the picture](docs/films/explainer.gif)
+
+**Demo** · `bright_demo`
+
+![Demo film: the session that made these films, in its real order](docs/films/demo.gif)
+
 ## What it does
 
 1. Check the setup and ask for the purpose, audience, message, proof, references, format, and sound.
